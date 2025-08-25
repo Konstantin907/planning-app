@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+
+
+@layer components{
+    .light{
+        font-family: "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: lighter;
+        font-style: light;
+    }
+    .primary{
+        font-family: "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: normal;
+        font-style: normal;
+    }
+    .medium{
+        font-family: "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: medium;
+        font-style: normal;
+    }
+    .bold{
+        font-family: "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: bold;
+        font-style: bold;
+    }
+}
+
+@layer components {
+    .editor {
+        .ql-toolbar .ql-stroke {
+            stroke: #e5e7eb;
+        }
+
+        .ql-toolbar .ql-fill {
+            fill: #e5e7eb;
+        }
+
+        .ql-toolbar .ql-picker {
+            color: #e5e7eb;
+        }
+
+        .ql-toolbar .ql-picker-options {
+            background-color: #1f2937;
+            color: #e5e7eb;
+        }
+
+        .ql-toolbar .ql-picker-item {
+            color: #e5e7eb;
+        }
+
+        .ql-toolbar {
+            border-color: #374151;
+        }
+
+    }
+}
