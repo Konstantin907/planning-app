@@ -26,6 +26,7 @@
     "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "dotenv": "^17.2.1",
     "flowbite": "^3.1.2",
     "lucide-react": "^0.513.0",
     "primeicons": "^7.0.0",
