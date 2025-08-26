@@ -25,7 +25,7 @@ export const Register = () => {
         setMessage("Registration successful! Redirecting...");
         setMessageType("success");
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = "/login";
         }, 1000);
       }
     } catch (error) {
