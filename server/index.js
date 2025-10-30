@@ -25,9 +25,25 @@ app.use('/api/events', eventRoutes);
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
-    console.log('✅ Mongo connected!');
+    console.log('Mongo connected!');
     app.listen(process.env.PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${process.env.PORT}`);
+      console.log(`Server running at http://localhost:${process.env.PORT}`);
     });
+    startKeepAlive();
   })
   .catch((err) => console.error('❌ Mongo connection error:', err));
+
+  function startKeepAlive() {
+  const db = mongoose.connection.db;
+
+  const pingDB = async () => {
+    try {
+      await db.admin().ping();
+      console.log('🔁 Pinged Mongo cluster to keep it alive');
+    } catch (err) {
+      console.error('Ping failed:', err.message);
+    }
+  };
+
+  setInterval(pingDB, 30 * 60 * 1000);
+}
