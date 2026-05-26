@@ -16,10 +16,6 @@ export const Header = () => {
           <li className="hover:text-black cursor-pointer">Mail <span className="bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded ml-1 text-xs font-semibold">New</span></li>
           <li className="hover:text-black cursor-pointer">Calendar</li>
           <li className="hover:text-black cursor-pointer">AI</li>
-          <li className="hover:text-black cursor-pointer">Enterprise</li>
-          <li className="hover:text-black cursor-pointer">Pricing</li>
-          <li className="hover:text-black cursor-pointer">Explore <span className="text-xs">▾</span></li>
-          <li className="hover:text-black cursor-pointer">Request a demo</li>
         </ul>
       </div>
 
@@ -30,7 +26,7 @@ export const Header = () => {
         </Link>
         <Link to='/register'>
           <button className="bg-[#1e1d1d] text-white hover:cursor-pointer px-4 py-2 rounded-md hover:opacity-90 transition">
-            Get Cube Now
+            Register
           </button>
         </Link>
 

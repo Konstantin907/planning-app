@@ -31,7 +31,7 @@ mongoose
     });
     startKeepAlive();
   })
-  .catch((err) => console.error('❌ Mongo connection error:', err));
+  .catch((err) => console.error('Mongo connection error:', err));
 
   function startKeepAlive() {
   const db = mongoose.connection.db;
