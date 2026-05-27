@@ -55,7 +55,7 @@ export const DashboardHome = () => {
   }, []);
 
   return (
-    <div className="flex-1 p-6 overflow-y-auto">
+    <div className="w-full max-w-full">
       <DashboardHeader />
 
       <div className="mt-8">
