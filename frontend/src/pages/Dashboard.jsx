@@ -7,6 +7,7 @@ import { WeeklyPlanner } from "../components/dashboardComponents/WeeklyPlanner";
 import { WeeklyTasks } from "../components/dashboardComponents/WeeklyTasks";
 import DiagramEditor from "../components/dashboardComponents/DiagramEditor";
 import CalendarBoard from "../components/dashboardComponents/CalendarBoard";
+import { Settings } from "../components/dashboardComponents/Settings";
 
 export const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -38,6 +39,8 @@ export const Dashboard = () => {
         return <WeeklyPlanner />;
       case "calendar":
         return <CalendarBoard />;
+      case "settings":
+        return <Settings />;
       default:
         return <DashboardHome />;
     }

@@ -80,7 +80,10 @@ export const Sidebar = ({ setActivePage, activePage, isOpen, onClose }) => {
       </div>
 
       <div className="space-y-1 border-t border-neutral-800 pt-4 text-sm">
-        <div className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-gray-400 transition-colors hover:bg-neutral-800/50 hover:text-white">
+        <div
+          className={navStyle("settings")}
+          onClick={() => handleNav("settings")}
+        >
           <Settings size={16} /> Settings
         </div>
         <div

@@ -6,6 +6,7 @@ import noteRoutes from './routes/noteRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import weeklyTaskRoutes from './routes/weeklyTaskRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { connectDB } from './src/db/connect.js';
 
 
@@ -24,6 +25,7 @@ app.use('/api/note', noteRoutes);
 app.use('/api/task', taskRoutes);
 app.use('/api', weeklyTaskRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/user', userRoutes);
 
 
 
