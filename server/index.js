@@ -15,10 +15,25 @@ dotenv.config();
 
 const app = express();
 
-const clientUrl = process.env.CLIENT_URL;
+const clientUrl = process.env.CLIENT_URL?.replace(/\/$/, "");
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (!clientUrl) {
+      return callback(null, true);
+    }
+    if (origin === clientUrl || /\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error("Not allowed by CORS"));
+  },
+};
 
 app.use(express.json());
-app.use(clientUrl ? cors({ origin: clientUrl }) : cors());
+app.use(cors(corsOptions));
 app.use('/uploads', express.static('uploads'));
 
 app.get('/health', (req, res) => {
