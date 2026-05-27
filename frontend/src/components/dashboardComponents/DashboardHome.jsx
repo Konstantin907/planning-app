@@ -1,8 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, FileText, Sparkles, X, Clock } from "lucide-react";
+import toast from "react-hot-toast";
+import { Plus, FileText, Sparkles, X, Clock, Pencil, Trash2 } from "lucide-react";
 import { DashboardHeader } from "./DashboardHeader";
 import { NoteEditor } from "../NoteEditor";
+import { DeleteModal } from "../../modals/DeleteModal";
 import api from "../../api";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -49,7 +51,10 @@ const quickActions = [
 
 export const DashboardHome = () => {
   const [showEditor, setShowEditor] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
   const [notes, setNotes] = useState([]);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const { user, token } = useContext(AuthContext);
 
   const getAllNotes = async () => {
@@ -70,8 +75,75 @@ export const DashboardHome = () => {
     getAllNotes();
   }, []);
 
+  const openCreateEditor = () => {
+    setEditingNote(null);
+    setShowEditor(true);
+  };
+
+  const openEditEditor = (note) => {
+    setEditingNote(note);
+    setShowEditor(true);
+  };
+
+  const closeEditor = () => {
+    setShowEditor(false);
+    setEditingNote(null);
+  };
+
+  const handleNoteSaved = (note) => {
+    if (editingNote) {
+      setNotes((prev) =>
+        prev.map((n) => (n._id === note._id ? note : n))
+      );
+    } else {
+      setNotes((prev) => [note, ...prev]);
+    }
+    closeEditor();
+  };
+
+  const openDeleteModal = (note) => {
+    setDeleteTarget(note);
+  };
+
+  const closeDeleteModal = () => {
+    if (deletingId) return;
+    setDeleteTarget(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || deletingId) return;
+
+    const noteId = deleteTarget._id;
+    setDeletingId(noteId);
+
+    try {
+      await api.delete(`/note/${noteId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setNotes((prev) => prev.filter((n) => n._id !== noteId));
+      if (editingNote?._id === noteId) closeEditor();
+      setDeleteTarget(null);
+      toast.success("Note deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete note:", error);
+      toast.error("Failed to delete note");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="w-full max-w-full">
+      <DeleteModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Delete this note?"
+        message="This action cannot be undone. The note will be permanently removed."
+        itemName={deleteTarget?.title || "Untitled Note"}
+        isLoading={Boolean(deletingId)}
+      />
+
       <DashboardHeader />
 
       <motion.div
@@ -79,7 +151,6 @@ export const DashboardHome = () => {
         initial="hidden"
         animate="show"
       >
-        {/* Quick actions */}
         <motion.div variants={itemVariants}>
           <h2 className="text-sm font-medium uppercase tracking-wider text-gray-500 mb-3">
             Quick actions
@@ -92,7 +163,7 @@ export const DashboardHome = () => {
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`group relative cursor-pointer overflow-hidden rounded-xl border border-neutral-800 bg-gradient-to-br ${item.gradient} p-4 transition-colors hover:border-neutral-700`}
-                onClick={() => item.action === "editor" && setShowEditor(true)}
+                onClick={() => item.action === "editor" && openCreateEditor()}
               >
                 <div className={`mb-3 inline-flex rounded-lg bg-neutral-800/60 p-2 ${item.iconColor}`}>
                   <item.icon size={18} />
@@ -104,7 +175,6 @@ export const DashboardHome = () => {
           </div>
         </motion.div>
 
-        {/* Editor */}
         <AnimatePresence>
           {showEditor && (
             <motion.div
@@ -116,7 +186,7 @@ export const DashboardHome = () => {
             >
               <div className="relative">
                 <motion.button
-                  onClick={() => setShowEditor(false)}
+                  onClick={closeEditor}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   className="absolute -right-2 -top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-gray-400 shadow-lg transition-colors hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/40 cursor-pointer"
@@ -125,17 +195,15 @@ export const DashboardHome = () => {
                   <X size={14} />
                 </motion.button>
                 <NoteEditor
-                  onNoteSaved={(note) => {
-                    setNotes((prev) => [note, ...prev]);
-                    setShowEditor(false);
-                  }}
+                  key={editingNote?._id || "new"}
+                  initialNote={editingNote}
+                  onNoteSaved={handleNoteSaved}
                 />
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Notes section */}
         <motion.div variants={itemVariants} className="mt-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="flex items-center gap-2 text-sm font-medium uppercase tracking-wider text-gray-500">
@@ -170,13 +238,14 @@ export const DashboardHome = () => {
                   const text = stripHtml(note.content);
                   const preview =
                     text.length > 80 ? text.slice(0, 80) + "…" : text;
+                  const isDeleting = deletingId === note._id;
 
                   return (
                     <motion.div
                       key={note._id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{
-                        opacity: 1,
+                        opacity: isDeleting ? 0.5 : 1,
                         y: 0,
                         transition: {
                           delay: i * 0.04,
@@ -192,9 +261,29 @@ export const DashboardHome = () => {
                         stiffness: 300,
                         damping: 22,
                       }}
-                      className="group cursor-pointer rounded-xl border border-neutral-800 bg-neutral-800/50 p-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800"
+                      className="group relative rounded-xl border border-neutral-800 bg-neutral-800/50 p-4 transition-colors hover:border-neutral-700 hover:bg-neutral-800"
                     >
-                      <h3 className="font-semibold text-white text-sm group-hover:text-violet-300 transition-colors">
+                      <div className="absolute right-3 top-3 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          onClick={() => openEditEditor(note)}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-violet-500/20 hover:text-violet-400 cursor-pointer"
+                          aria-label="Edit note"
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openDeleteModal(note)}
+                          disabled={isDeleting}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-red-500/20 hover:text-red-400 disabled:opacity-50 cursor-pointer"
+                          aria-label="Delete note"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+
+                      <h3 className="pr-16 font-semibold text-white text-sm group-hover:text-violet-300 transition-colors">
                         {note.title || "Untitled Note"}
                       </h3>
                       <p className="mt-2 text-xs leading-relaxed text-gray-400 line-clamp-3">
