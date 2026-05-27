@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Loader2, ArrowRight } from "lucide-react";
 import api from "../api";
@@ -26,6 +26,7 @@ export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,9 +43,7 @@ export const Register = () => {
       if (response.status === 200) {
         setMessage("Registration successful! Redirecting...");
         setMessageType("success");
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 1000);
+        setTimeout(() => navigate("/login"), 1000);
       }
     } catch (error) {
       const errMsg =
