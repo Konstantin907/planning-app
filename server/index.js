@@ -15,9 +15,15 @@ dotenv.config();
 
 const app = express();
 
+const clientUrl = process.env.CLIENT_URL;
+
 app.use(express.json());
-app.use(cors());
+app.use(clientUrl ? cors({ origin: clientUrl }) : cors());
 app.use('/uploads', express.static('uploads'));
+
+app.get('/health', (req, res) => {
+  res.json({ ok: true });
+});
 
 
 app.use('/api/auth', authRoutes);

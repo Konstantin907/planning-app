@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { Dialog, Transition } from '@headlessui/react';
 import format from 'date-fns/format';
@@ -13,6 +14,7 @@ const locales = { 'en-US': enUS };
 const localizer = dateFnsLocalizer({ format, parse, startOfWeek, getDay, locales });
 
 const CalendarBoard = () => {
+  const { token } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -22,9 +24,13 @@ const CalendarBoard = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
+    if (!token) return;
+
     const fetchEvents = async () => {
       try {
-        const res = await api.get('/events');
+        const res = await api.get('/events', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const fixedEvents = res.data.map(event => ({
           ...event,
           start: new Date(event.start),
@@ -37,7 +43,7 @@ const CalendarBoard = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [token]);
 
   const handleSelectSlot = (slotInfo) => {
     setSelectedSlot(slotInfo);
@@ -55,7 +61,9 @@ const CalendarBoard = () => {
     };
 
     try {
-      const res = await api.post('/events', newEvent);
+      const res = await api.post('/events', newEvent, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setEvents((prev) => [
         ...prev,
         {
@@ -86,7 +94,9 @@ const CalendarBoard = () => {
         title,
         color,
       };
-      await api.put(`/events/${selectedEvent._id}`, updated);
+      await api.put(`/events/${selectedEvent._id}`, updated, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setEvents((prev) =>
         prev.map((evt) =>
           evt._id === updated._id ? { ...evt, title, color } : evt
@@ -100,7 +110,9 @@ const CalendarBoard = () => {
 
   const handleDeleteEvent = async () => {
     try {
-      await api.delete(`/events/${selectedEvent._id}`);
+      await api.delete(`/events/${selectedEvent._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setEvents((prev) => prev.filter((evt) => evt._id !== selectedEvent._id));
       resetEditState();
     } catch (err) {

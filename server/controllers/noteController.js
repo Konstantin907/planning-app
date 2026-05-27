@@ -17,6 +17,9 @@ export const createNote = async(req, res) => {
 
 export const getNotesByUser = async(req, res) => {
     try {
+        if (String(req.params.userId) !== String(req.user.id)) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
         const notes = await NoteModel.find({ userId: req.params.userId }).sort({ date: -1 });
         res.json(notes);
         

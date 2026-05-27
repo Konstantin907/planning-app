@@ -25,8 +25,6 @@ export const getTasks = async (req, res) => {
 
 export const updateTask = async(req, res) => {
   try {
-    console.log("Updating Task", req.params.id, req.user.id, req.body);
-
     const task = await TasksModel.findOneAndUpdate(
       { _id: req.params.id, userId: req.user.id },
       { isCompleted: req.body.isCompleted },
@@ -39,7 +37,6 @@ export const updateTask = async(req, res) => {
 
     res.status(200).json(task);
   } catch (error) {
-    console.error("Update Task Error:", error);
     res.status(500).json({ message: "Server error during updating tasks" });
   }
 };
@@ -66,11 +63,17 @@ export const createTasks = async(req, res) => {
 
 
 
-export const deleteTask = async(req, res) => {
-    try {
-        await TasksModel.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
-        res.status(201).json({ message: 'Task is successfully deleted!' })
-    } catch (error) {
-        res.status(401).json({ message: "Failed to delete task!" });
+export const deleteTask = async (req, res) => {
+  try {
+    const task = await TasksModel.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
     }
-}
+    res.status(200).json({ message: "Task is successfully deleted!" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete task!" });
+  }
+};
