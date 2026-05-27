@@ -58,12 +58,6 @@ export const Sidebar = ({ setActivePage, activePage, isOpen, onClose }) => {
           >
             <ChartColumn size={16} /> Diagram.io
           </div>
-          <div
-            className={navStyle("search")}
-            onClick={() => handleNav("search")}
-          >
-            <Search size={16} /> Search
-          </div>
 
           <hr className="my-4 border-neutral-700" />
 
@@ -75,9 +69,6 @@ export const Sidebar = ({ setActivePage, activePage, isOpen, onClose }) => {
           </div>
           <div className={navStyle("tasks")} onClick={() => handleNav("tasks")}>
             📋 Weekly Tasks
-          </div>
-          <div className={navStyle("habit")} onClick={() => handleNav("habit")}>
-            ✅ Habit Tracker
           </div>
           <div
             className={navStyle("planner")}
